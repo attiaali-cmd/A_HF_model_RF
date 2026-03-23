@@ -32,6 +32,6 @@ def predict(data: ModelInput):
     ]
     prediction = model.predict([input_list])
     if prediction[0] == 1:
-        return {"result": "Will Survive"}
-    else:
         return {"result": "Will Not Survive"}
+    else:
+        return {"result": "Will  Survive"}
