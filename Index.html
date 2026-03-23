@@ -1,1 +1,153 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CardioSurv — Heart Failure Survival Predictor</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#f0f2f5;--surface:#fff;--panel:#f7f9fc;--border:#dde3ec;--text:#0d1b2a;--muted:#6b7a93;--accent:#c0392b;--accent2:#1a5276;--green:#1a7a4a}
+    body{font-family:'Instrument Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+    header{background:var(--accent2);color:#fff;padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--accent)}
+    .logo{font-family:'DM Mono',monospace;font-weight:600;font-size:15px;letter-spacing:.12em}
+    .logo span{color:#f39c12}
+    .badge{font-family:'DM Mono',monospace;font-size:10px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);padding:3px 10px;border-radius:2px;letter-spacing:.1em}
+    main{max-width:780px;margin:0 auto;padding:32px 20px 60px}
+    .title-block{border-left:4px solid var(--accent);padding-left:16px;margin-bottom:28px}
+    .title-block h1{font-family:'DM Serif Display',serif;font-size:28px;line-height:1.2}
+    .title-block p{margin-top:6px;font-size:13px;color:var(--muted);line-height:1.6}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:6px;box-shadow:0 2px 12px rgba(0,0,0,.06);overflow:hidden}
+    .card-header{background:var(--panel);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;gap:8px}
+    .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+    .card-header span{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+    .form-body{padding:24px 20px}
+    .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px}
+    label{display:block;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+    .unit{color:#aab;margin-left:4px}
+    input[type=number]{width:100%;font-family:'DM Mono',monospace;font-size:18px;font-weight:600;color:var(--text);background:var(--panel);border:1.5px solid var(--border);border-radius:4px;padding:10px 12px;outline:none;-moz-appearance:textfield}
+    input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none}
+    input:focus{border-color:var(--accent2);box-shadow:0 0 0 3px rgba(26,82,118,.12);background:#fff}
+    input.error{border-color:var(--accent);background:#fff5f5}
+    .hint{margin-top:4px;font-family:'DM Mono',monospace;font-size:10px;color:#9aabb5}
+    hr{border:none;border-top:1px solid var(--border);margin:20px 0}
+    .form-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+    .disclaimer{font-size:11px;color:var(--muted);max-width:340px;line-height:1.5}
+    .disclaimer strong{color:var(--accent)}
+    button{font-family:'DM Mono',monospace;font-size:12px;letter-spacing:.12em;text-transform:uppercase;background:var(--accent2);color:#fff;border:none;border-radius:4px;padding:12px 28px;cursor:pointer;transition:background .2s}
+    button:hover{background:#154360}
+    button:disabled{background:#aab;cursor:not-allowed}
+    .error-toast{display:none;margin-top:14px;background:#fdf0ef;border:1px solid #e8a89e;border-radius:4px;padding:10px 14px;font-family:'DM Mono',monospace;font-size:12px;color:var(--accent)}
+    #result-panel{display:none;margin-top:20px;border-radius:6px;overflow:hidden;animation:fadeUp .4s ease}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+    .result-header{padding:10px 16px;color:#fff;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+    .result-body{background:#fff;padding:20px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+    .result-icon{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0}
+    .result-text h3{font-family:'DM Serif Display',serif;font-size:22px}
+    .result-text p{margin-top:4px;font-size:13px;color:var(--muted);line-height:1.5;max-width:480px}
+    .input-summary{background:var(--panel);border-top:1px solid var(--border);padding:10px 16px;display:flex;gap:28px;flex-wrap:wrap;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)}
+    .input-summary strong{color:var(--text)}
+    footer{margin-top:40px;font-family:'DM Mono',monospace;font-size:10px;color:#ccc;text-align:center;letter-spacing:.08em}
+  </style>
+</head>
+<body>
+<header>
+  <div class="logo">CARDIO<span>SURV</span></div>
+  <div class="badge">Clinical Decision Support</div>
+</header>
+<main>
+  <div class="title-block">
+    <h1>Heart Failure<br/>Survival Prediction</h1>
+    <p>Enter patient clinical parameters to generate a model-based survival assessment.</p>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="dot"></div><span>Patient Parameters</span></div>
+    <div class="form-body">
+      <div class="form-grid">
+        <div>
+          <label>Serum Creatinine <span class="unit">mg/dL</span></label>
+          <input type="number" id="sc" placeholder="e.g. 1.2" step="0.1" min="0.1"/>
+          <div class="hint">Normal: 0.7 – 1.3 mg/dL</div>
+        </div>
+        <div>
+          <label>Ejection Fraction <span class="unit">%</span></label>
+          <input type="number" id="ef" placeholder="e.g. 38" step="1" min="1" max="100"/>
+          <div class="hint">Normal: 55 – 70%</div>
+        </div>
+        <div>
+          <label>Patient Age <span class="unit">yrs</span></label>
+          <input type="number" id="age" placeholder="e.g. 65" step="1" min="1" max="120"/>
+          <div class="hint">Age at assessment</div>
+        </div>
+      </div>
+      <hr/>
+      <div class="form-footer">
+        <p class="disclaimer"><strong>For research use only.</strong> Does not constitute medical advice. Consult a qualified clinician.</p>
+        <button id="btn" onclick="predict()">▶ Run Assessment</button>
+      </div>
+      <div class="error-toast" id="err"></div>
+    </div>
+  </div>
+
+  <div id="result-panel">
+    <div class="result-header" id="rh">⚡ Model Output</div>
+    <div class="result-body">
+      <div class="result-icon" id="ri"></div>
+      <div class="result-text">
+        <h3 id="rt"></h3>
+        <p id="rd"></p>
+      </div>
+    </div>
+    <div class="input-summary" id="rs"></div>
+  </div>
+</main>
+<footer>CARDIOSURV · RANDOM FOREST MODEL · RESEARCH USE ONLY</footer>
+
+<script>
+  // ✅ PASTE YOUR RAILWAY URL BELOW
+  const API = "https://web-production-c6b644.up.railway.app/Heart_failure_survival";
+
+  async function predict() {
+    const sc = document.getElementById("sc");
+    const ef = document.getElementById("ef");
+    const age = document.getElementById("age");
+    const err = document.getElementById("err");
+    const btn = document.getElementById("btn");
+    const panel = document.getElementById("result-panel");
+
+    err.style.display = "none";
+    panel.style.display = "none";
+    [sc,ef,age].forEach(i=>i.classList.remove("error"));
+
+    let valid = true;
+    if(!sc.value||sc.value<=0){sc.classList.add("error");valid=false;}
+    if(!ef.value||ef.value<=0){ef.classList.add("error");valid=false;}
+    if(!age.value||age.value<=0){age.classList.add("error");valid=false;}
+    if(!valid){err.textContent="Please fill in all fields.";err.style.display="block";return;}
+
+    btn.disabled=true; btn.textContent="Analysing…";
+    try {
+      const res = await fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({serum_creatinine:parseFloat(sc.value),ejection_fraction:parseInt(ef.value),age:parseInt(age.value)})});
+      if(!res.ok) throw new Error("Server error "+res.status);
+      const data = await res.json();
+      const survive = data.result === "Will Survive";
+      document.getElementById("rh").style.background = survive?"#1a7a4a":"#c0392b";
+      document.getElementById("ri").textContent = survive?"♥":"⚠";
+      document.getElementById("ri").style.cssText = `width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;background:${survive?"#e8f8f0":"#fdf0ef"}`;
+      document.getElementById("rt").textContent = data.result;
+      document.getElementById("rt").style.color = survive?"#1a7a4a":"#c0392b";
+      document.getElementById("rd").textContent = survive?"The model predicts a favourable survival outcome. Continue monitoring and standard care protocols.":"The model predicts elevated mortality risk. Clinical review and intervention planning is strongly advised.";
+      document.getElementById("rs").innerHTML=`<span>Creatinine: <strong>${sc.value} mg/dL</strong></span><span>Ejection Fraction: <strong>${ef.value}%</strong></span><span>Age: <strong>${age.value} yrs</strong></span>`;
+      panel.style.display="block";
+      panel.scrollIntoView({behavior:"smooth",block:"nearest"});
+    } catch(e) {
+      err.textContent="Connection error: "+e.message+". Check your API URL.";
+      err.style.display="block";
+    } finally {
+      btn.disabled=false; btn.textContent="▶ Run Assessment";
+    }
+  }
+</script>
+</body>
+</html>
