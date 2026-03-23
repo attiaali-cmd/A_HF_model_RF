@@ -1,8 +1,16 @@
 import pickle
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 class ModelInput(BaseModel):
     serum_creatinine: float
@@ -11,6 +19,10 @@ class ModelInput(BaseModel):
 
 model = pickle.load(open("randomforest.sav", "rb"))
 
+@app.get("/")
+def root():
+    return {"status": "running"}
+
 @app.post("/Heart_failure_survival")
 def predict(data: ModelInput):
     input_list = [
@@ -18,9 +30,7 @@ def predict(data: ModelInput):
         data.ejection_fraction,
         data.age
     ]
-
     prediction = model.predict([input_list])
-
     if prediction[0] == 1:
         return {"result": "Will Survive"}
     else:
