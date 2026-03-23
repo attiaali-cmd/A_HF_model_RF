@@ -31,7 +31,7 @@ def predict(data: ModelInput):
         data.age
     ]
     prediction = model.predict([input_list])
-    if prediction[0] == 1:
-        return {"result": "Will Not Survive"}
+    if prediction[0] == 0:
+        return {"result": "Will Survive"}
     else:
-        return {"result": "Will  Survive"}
+        return {"result": "Will Not Survive"}
